@@ -19,7 +19,9 @@
     border-radius: 0.5rem;
     cursor: pointer;
     display: flex;
+    font-size: inherit;
     gap: 0.25rem;
+    margin-bottom: 1rem;
     padding: 1rem 1.5rem;
     transition: transform 0.15s ease-in-out;
 
