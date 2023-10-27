@@ -1,8 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-test("about page has expected h1", async ({ page }) => {
-  await page.goto("/about");
-  await expect(
-    page.getByRole("heading", { name: "About this app" }),
-  ).toBeVisible();
+test("front page has a link to /new", async ({ page }) => {
+  await page.goto("/");
+
+  await page.click('a[href="/new"]');
+  await page.waitForURL((url) => url.pathname === "/new");
+
+  expect(true).toBe(true);
 });
