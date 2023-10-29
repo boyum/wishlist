@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
 
+  export let type: "button" | "submit" = "button";
+
   const dispatch = createEventDispatcher();
 
   const handleClick = (event: MouseEvent) => {
@@ -8,7 +10,7 @@
   };
 </script>
 
-<button on:click={handleClick}><slot /></button>
+<button on:click={handleClick} {type}><slot /></button>
 
 <style lang="scss" scoped>
   button {

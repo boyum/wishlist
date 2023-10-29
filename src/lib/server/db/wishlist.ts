@@ -19,12 +19,12 @@ type WishListItem = {
   reserved: boolean;
 };
 
-type Wishlist = {
+export type Wishlist = {
   id: string;
   slug: string;
   title: string;
-  description: string;
   items: WishListItem[];
+  theme: "green" | "christmas";
 };
 
 type NewWishlist = Omit<Wishlist, "id" | "slug"> & { slug?: string };
@@ -40,6 +40,7 @@ const wishlistConverter: FirestoreDataConverter<Wishlist, Wishlist> = {
       description: data.description,
       items: data.items,
       slug: data.slug,
+      theme: data.theme,
     };
   },
 };

@@ -1,20 +1,28 @@
-import { initializeApp, type FirebaseOptions } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection } from "firebase/firestore";
+import { initializeApp, type AppOptions } from "firebase-admin/app";
+import { getAnalytics, type Analytics } from "firebase/analytics";
+import { getFirestore, collection, Firestore } from "firebase/firestore";
 
-const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  appId: process.env.FIREBASE_APP_ID,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+const firebaseConfig: AppOptions = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
 };
 
-export const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const analytics = getAnalytics(app);
+let app: FirebaseApp;
+let db: Firestore;
+let analytics: Analytics;
+
+if (!app) {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  analytics = getAnalytics(app);
+}
+
+export { app, db, analytics };
 
 type CollectionName = "wishlists";
 

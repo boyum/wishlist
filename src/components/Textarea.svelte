@@ -1,4 +1,5 @@
 <script lang="ts">
+  export let name: string;
   export let label: string;
   export let placeholder: string = "";
 
@@ -15,12 +16,7 @@
 
 <label for="list-name">{label}</label>
 <div class="grow-wrap">
-  <textarea
-    id="list-name"
-    name="list-name"
-    {placeholder}
-    on:input={handleInput}
-  />
+  <textarea id="list-name" {name} {placeholder} on:input={handleInput} />
 </div>
 
 <style lang="scss" scoped>
