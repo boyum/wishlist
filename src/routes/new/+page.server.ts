@@ -1,6 +1,4 @@
-import type { Wishlist } from "$lib/server/db/wishlist";
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import { createWishlist } from "$lib/server/db/wishlist";
 
 export const actions = {
   default: async ({ request }) => {
@@ -9,15 +7,20 @@ export const actions = {
     const formData = await request.formData();
     const data = Object.fromEntries(formData.entries());
 
-    // TODO: Validate data
+    // TODO: Validate data (with Zod?)
+    if (!data.title) {
+      throw new TypeError("Title is required");
+    }
 
     console.log({ data });
 
-    // Fake delay to simulate network latency
-    // TODO: Remove this
-    await sleep(2000);
+    const createdWishlist = await createWishlist({
+      title: data.title as string,
+      items: [],
+      theme: "green",
+    });
 
     // const wishlist = await create(data as unknown as Wishlist);
-    return data as unknown as Wishlist;
+    return createdWishlist;
   },
 };

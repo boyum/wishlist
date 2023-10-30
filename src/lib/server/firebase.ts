@@ -1,28 +1,21 @@
-import { initializeApp, type AppOptions } from "firebase-admin/app";
-import { getAnalytics, type Analytics } from "firebase/analytics";
-import { getFirestore, collection, Firestore } from "firebase/firestore";
+import * as admin from "firebase-admin";
 
-const firebaseConfig: AppOptions = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-};
-
-let app: FirebaseApp;
-let db: Firestore;
-let analytics: Analytics;
-
-if (!app) {
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  analytics = getAnalytics(app);
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      clientEmail: import.meta.env.VITE_FIREBASE_CLIENT_EMAIL,
+      privateKey: import.meta.env.VITE_FIREBASE_PRIVATE_KEY?.replace(
+        /\\n/g,
+        "\n",
+      ),
+    }),
+  });
 }
 
-export { app, db, analytics };
+const db = admin.firestore();
+
+export { db };
 
 type CollectionName = "wishlists";
 
@@ -32,6 +25,8 @@ type CollectionName = "wishlists";
  *
  * @param collectionName
  */
-export function getCollection(collectionName: CollectionName) {
-  return collection(db, collectionName);
+export function getCollection<TType>(collectionName: CollectionName) {
+  return db.collection(
+    collectionName,
+  ) as admin.firestore.CollectionReference<TType>;
 }

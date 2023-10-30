@@ -1,11 +1,5 @@
-import { db, getCollection } from "$lib/server/firebase";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  type FirestoreDataConverter,
-  addDoc,
-} from "firebase/firestore";
+import { getCollection } from "$lib/server/firebase";
+import type { FirestoreDataConverter } from "firebase-admin/firestore";
 
 const COLLECTION_NAME = "wishlists";
 const SLUG_LENGTH = 8;
@@ -29,21 +23,26 @@ export type Wishlist = {
 
 type NewWishlist = Omit<Wishlist, "id" | "slug"> & { slug?: string };
 
-const wishlistConverter: FirestoreDataConverter<Wishlist, Wishlist> = {
+const wishlistConverter: FirestoreDataConverter<Wishlist> = {
   toFirestore: (wishlist: Wishlist): Wishlist => wishlist,
-  fromFirestore: (snapshot, options): Wishlist => {
-    const data = snapshot.data(options);
+  fromFirestore: (snapshot): Wishlist => {
+    const data = snapshot.data();
 
     return {
       id: snapshot.id,
       title: data.title,
-      description: data.description,
       items: data.items,
       slug: data.slug,
       theme: data.theme,
     };
   },
 };
+
+function getWishlistCollection() {
+  return getCollection<Wishlist>(COLLECTION_NAME).withConverter(
+    wishlistConverter,
+  );
+}
 
 function getRandomArrayValue<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -66,15 +65,17 @@ function createRandomSlug(): string {
  * @param id A unique identifier for the wishlist.
  * @returns
  */
-export async function get(id: string): Promise<Wishlist | null> {
-  const wishlistRef = doc(db, COLLECTION_NAME, id).withConverter(
-    wishlistConverter,
-  );
+export async function getWishlist(id: string): Promise<Wishlist | undefined> {
+  const wishlistCollection = getWishlistCollection();
 
-  const wishlistSnap = await getDoc(wishlistRef);
+  const wishlistRef = wishlistCollection
+    .doc(id)
+    .withConverter(wishlistConverter);
 
-  if (!wishlistSnap.exists()) {
-    return null;
+  const wishlistSnap = await wishlistRef.get();
+
+  if (!wishlistSnap.exists) {
+    return;
   }
 
   const data = wishlistSnap.data();
@@ -92,21 +93,25 @@ type CreateWishlistError = {
  *
  * @param wishlist
  */
-export async function create(
+export async function createWishlist(
   wishlist: NewWishlist,
 ): Promise<Wishlist | CreateWishlistError> {
   const id = crypto.randomUUID();
   const slug = wishlist.slug || createRandomSlug();
 
-  const wishlistCollection = getCollection(COLLECTION_NAME);
+  const wishlistCollection = getWishlistCollection();
 
   try {
-    (wishlist as Wishlist).id = id;
-    (wishlist as Wishlist).slug = slug;
+    const wishlistWithId: Wishlist = {
+      ...wishlist,
+      id,
+      slug,
+    };
 
-    await addDoc(wishlistCollection, wishlist);
+    const response = await wishlistCollection.add(wishlistWithId);
+    const createdWishlist = (await response.get()).data();
 
-    return wishlist as Wishlist;
+    return createdWishlist ?? { error: "Wishlist not found" };
   } catch (error) {
     if (error instanceof Error) {
       return {
@@ -135,16 +140,15 @@ type UpdateWishlistError = {
  *
  * @param wishlist
  */
-export async function update(
+export async function updateWishlist(
   wishlist: Wishlist,
-): Promise<Wishlist | UpdateWishlistError> {
-  const wishlistRef = doc(db, COLLECTION_NAME, wishlist.id).withConverter(
-    wishlistConverter,
-  );
+): Promise<UpdateWishlistError | undefined> {
+  const wishlistCollection = getWishlistCollection();
 
   try {
-    await setDoc(wishlistRef, wishlist);
-    return wishlist;
+    await wishlistCollection.doc(wishlist.id).update(wishlist);
+
+    return;
   } catch (error) {
     if (error instanceof Error) {
       return {
