@@ -10,9 +10,6 @@ const config = {
   kit: {
     adapter: adapter({
       runtime: "nodejs18.x",
-      isr: {
-        expiration: 60 * 60, // 1 hour
-      },
     }),
   },
 };
