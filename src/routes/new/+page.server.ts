@@ -12,7 +12,7 @@ export const actions = {
       throw new TypeError("Title is required");
     }
 
-    console.log({ data });
+    console.log({ data, envVar: import.meta.env.VITE_TEST });
 
     const createdWishlist = await createWishlist({
       title: data.title as string,
