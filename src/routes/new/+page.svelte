@@ -16,10 +16,11 @@
   <form
     method="POST"
     use:enhance={({ formElement }) => {
-      // TODO: Show loading animation on button
+      // TODO: Start loading animation on button
       // TODO: Copy the wishlist link to the clipboard
       return async ({ result }) => {
         // TODO: Stop loading animation on button
+        formElement.reset();
       };
     }}
   >
