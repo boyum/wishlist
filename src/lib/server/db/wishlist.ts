@@ -9,9 +9,11 @@ type WishListItem = {
   title: string;
   description: string;
   url: string;
-  price: number;
+  price: number | null;
   reserved: boolean;
 };
+
+export type NewWishListItem = Omit<WishListItem, "id" | "reserved">;
 
 export type Wishlist = {
   id: string;
@@ -21,7 +23,10 @@ export type Wishlist = {
   theme: "green" | "christmas";
 };
 
-type NewWishlist = Omit<Wishlist, "id" | "slug"> & { slug?: string };
+type NewWishlist = Omit<Wishlist, "id" | "slug" | "items"> & {
+  slug?: string;
+  items: NewWishListItem[];
+};
 
 const wishlistConverter: FirestoreDataConverter<Wishlist> = {
   toFirestore: (wishlist: Wishlist): Wishlist => wishlist,
@@ -98,6 +103,11 @@ export async function createWishlist(
 ): Promise<Wishlist | CreateWishlistError> {
   const id = crypto.randomUUID();
   const slug = wishlist.slug || createRandomSlug();
+  const items = wishlist.items.map((item) => ({
+    ...item,
+    id: crypto.randomUUID(),
+    reserved: false,
+  }));
 
   const wishlistCollection = getWishlistCollection();
 
@@ -106,6 +116,7 @@ export async function createWishlist(
       ...wishlist,
       id,
       slug,
+      items,
     };
 
     const response = await wishlistCollection.add(wishlistWithId);

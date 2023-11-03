@@ -1,5 +1,11 @@
 @import "@fontsource/fira-mono";
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
   --font-body: apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -21,6 +27,7 @@ body {
   align-items: center;
   display: flex;
   flex-direction: column;
+  margin: 0;
 }
 
 .visually-hidden {
@@ -33,4 +40,16 @@ body {
   position: absolute;
   width: 1px;
   white-space: nowrap;
+}
+
+pre,
+code {
+  font-family: var(--font-mono);
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
 }

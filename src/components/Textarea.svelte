@@ -1,6 +1,8 @@
 <script lang="ts">
-  export let name: string;
+  import { createEventDispatcher, onMount } from "svelte";
+
   export let label: string;
+  export let name: string;
   export let placeholder: string = "";
 
   const handleInput = (event: Event) => {
@@ -12,11 +14,25 @@
       );
     }
   };
+
+  const id = crypto.randomUUID();
+
+  let textarea: HTMLTextAreaElement;
+  const dispatch = createEventDispatcher();
+  onMount(() => {
+    dispatch("mount", textarea);
+  });
 </script>
 
-<label for="list-name">{label}</label>
+<label for={id}>{label}</label>
 <div class="grow-wrap">
-  <textarea id="list-name" {name} {placeholder} on:input={handleInput} />
+  <textarea
+    {id}
+    {name}
+    {placeholder}
+    on:input={handleInput}
+    bind:this={textarea}
+  />
 </div>
 
 <style lang="scss" scoped>
@@ -49,8 +65,8 @@
     border-bottom: 0.25rem solid #86a789;
     border-radius: 0.5rem;
     display: block;
-    font-size: 1.5rem;
     font-family: inherit;
+    font-size: 1.5rem;
     line-height: 2rem;
     margin-bottom: 1rem;
     padding: 1rem 1.5rem;
